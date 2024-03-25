@@ -96,13 +96,7 @@ def configure_retriever(uploaded_files):
     search_type="mmr", search_kwargs={"k":4, "fetch_k":10}
   )
 
-  RAG = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
-  RAG.index(
-    collection=ragatouille_docs,
-    index_name="langchain-index",
-    max_document_length=512,
-    split_documents=True,
-  )
+  RAG = RAGPretrainedModel.from_index(".ragatouille/colbert/indexes/langchain-index")
   ragatouille_retriever = RAG.as_langchain_retriever(k=10)
   retriever = EnsembleRetriever(retrievers=[chroma_retriever, ragatouille_retriever], weights=[0.50, 0.50])
 
