@@ -21,7 +21,7 @@ from langchain.llms import Together
 from ragatouille import RAGPretrainedModel
 from langchain_community.document_loaders import PyPDFLoader
 
-loader = PyPDFLoader("1107760")               
+loader = PyPDFLoader("2005.11401.pdf")
 r_docs = loader.load_and_split()
 
 RAG = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
@@ -34,8 +34,29 @@ RAG.index(
   split_documents=True,
 )
 
+import os
+import json
+import re
+import tempfile
+import streamlit as st
+import langchain
+from PIL import Image
+from langchain.document_loaders import PyPDFLoader
+from langchain.memory.chat_message_histories import StreamlitChatMessageHistory
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.callbacks.base import BaseCallbackHandler
+from langchain.vectorstores import Chroma
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.prompts.prompt import PromptTemplate
+from langchain.llms import HuggingFacePipeline
+from langchain.chains import RetrievalQA
+from langchain import LLMChain, PromptTemplate
+from langchain.retrievers import EnsembleRetriever
+from ragatouille import RAGPretrainedModel
+from langchain.llms import Together
+
+
 TOGETHER_API_KEY = "5b986c28fd0eb06cac1ff36c6f900a25b33c741854fc06fbf47c6d5cbecb3aa5"
-OPENAI_API_KEY = "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"
 
 favicon = Image.open("7969d1fe6c9a25b4662a381b154fe0f4.jpg")
 
@@ -48,7 +69,7 @@ os.environ["LANGCHAIN PROJECT"] = "RAG with Mixtral 8x7B and ColBERT by Taha Efe
 os.environ["LANGCHAIN_API_KEY"] = "ls__fa129a992e2b498dad13d62fa403471a"
 os.environ["LANGCHAIN_ENDPOIT"] = "https://api.smith.langchain.com"
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
-os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
+
 
 @st.cache_resource(ttl="1h")
 def configure_retriever(uploaded_files):
@@ -63,11 +84,11 @@ def configure_retriever(uploaded_files):
     docs.extend(loader.load())
 
   # Splitting the documents
-  text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50),
+  text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
   splits = text_splitter.split_documents(docs)
 
   # Creating and storing embeddings
-  embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
+  embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-large-en-v1.5")
   vectordb =  Chroma.from_documents(splits, embeddings)
 
   # Defining the retriever
@@ -82,7 +103,7 @@ def configure_retriever(uploaded_files):
     max_document_length=512,
     split_documents=True,
   )
-  ragatouille_retriever = RAG.as_langchain_retriever(k=10) 
+  ragatouille_retriever = RAG.as_langchain_retriever(k=10)
   retriever = EnsembleRetriever(retrievers=[chroma_retriever, ragatouille_retriever], weights=[0.50, 0.50])
 
   return retriever
@@ -97,7 +118,7 @@ if not uploaded_files:
 
 retriever = configure_retriever(uploaded_files)
 
-# Together API 
+# Together API
 os.environ["TOGETHER_API_KEY"] = TOGETHER_API_KEY
 llm = Together(
   model="mistralai/Mixtral-8x7B-Instruct-v0.1",
@@ -108,7 +129,7 @@ llm = Together(
 
 msgs = StreamlitChatMessageHistory()
 
-# Prompt Template 
+# Prompt Template
 RESPONSE_TEMPLATE = """<s>[INST]
 <<SYS>>
 You are a helpful AI assistant.
