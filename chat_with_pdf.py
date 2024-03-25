@@ -2,9 +2,9 @@ import os
 import json
 import re
 import tempfile
-import streamlit as st    
+import streamlit as st
+import langchain
 from PIL import Image
-
 from langchain.document_loaders import PyPDFLoader
 from langchain.memory.chat_message_histories import StreamlitChatMessageHistory
 from langchain.embeddings import HuggingFaceEmbeddings
