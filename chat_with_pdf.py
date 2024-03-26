@@ -34,28 +34,6 @@ RAG.index(
   split_documents=True,
 )
 
-import os
-import json
-import re
-import tempfile
-import streamlit as st
-import langchain
-from PIL import Image
-from langchain.document_loaders import PyPDFLoader
-from langchain.memory.chat_message_histories import StreamlitChatMessageHistory
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.callbacks.base import BaseCallbackHandler
-from langchain.vectorstores import Chroma
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.prompts.prompt import PromptTemplate
-from langchain.llms import HuggingFacePipeline
-from langchain.chains import RetrievalQA
-from langchain import LLMChain, PromptTemplate
-from langchain.retrievers import EnsembleRetriever
-from ragatouille import RAGPretrainedModel
-from langchain.llms import Together
-
-
 TOGETHER_API_KEY = "5b986c28fd0eb06cac1ff36c6f900a25b33c741854fc06fbf47c6d5cbecb3aa5"
 
 favicon = Image.open("7969d1fe6c9a25b4662a381b154fe0f4.jpg")
@@ -67,7 +45,7 @@ with st.sidebar:
 
 os.environ["LANGCHAIN PROJECT"] = "RAG with Mixtral 8x7B and ColBERT by Taha Efe"
 os.environ["LANGCHAIN_API_KEY"] = "ls__fa129a992e2b498dad13d62fa403471a"
-os.environ["LANGCHAIN_ENDPOIT"] = "https://api.smith.langchain.com"
+os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 
 
